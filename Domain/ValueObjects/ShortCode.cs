@@ -1,4 +1,6 @@
-﻿namespace Domain.ValueObjects;
+﻿using Domain.Exceptions;
+
+namespace Domain.ValueObjects;
 
 public sealed record ShortCode
 {
@@ -8,12 +10,12 @@ public sealed record ShortCode
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            throw new Exception("El código corto no puede estar vacío.");
+            throw new DomainException("El código corto no puede estar vacío.");
         }
 
         if (IsValidBase64(value))
         {
-            throw new Exception("El código corto contiene caracteres inválidos para base62.");
+            throw new DomainException("El código corto contiene caracteres inválidos para base62.");
         }
 
         Value = value;

@@ -1,12 +1,13 @@
 ﻿using Application.Common.Interfaces;
 using Domain.Entities;
 using Domain.ValueObjects;
+using MediatR;
 
 namespace Application.Links.Commands.CreateLink
 {
-    public class CreateLinkCommandHandler (ILinkRepository linkRepository)
+    public class CreateLinkCommandHandler (ILinkRepository linkRepository) : IRequestHandler<CreateLinkCommand, string>
     {
-        public async Task<string> Handle(CreateLinkCommand command)
+        public async Task<string> Handle(CreateLinkCommand command, CancellationToken cancellationToken)
         {
 
             ShortCode? shortCode = null;

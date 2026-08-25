@@ -19,5 +19,11 @@ namespace Infrastructure.Persistence.Repositories
             return await dbContext.Links
                 .FirstOrDefaultAsync(l => l.ShortCode == shortCode, cancellationToken);
         }
+
+        public async Task UpdateAsync(Link link, CancellationToken cancellationToken)
+        {
+            dbContext.Links.Update(link);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
     }
 }

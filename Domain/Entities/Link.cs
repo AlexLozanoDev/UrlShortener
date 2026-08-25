@@ -42,5 +42,10 @@ namespace Domain.Entities
                 throw new DomainException("Un alias personalizado debe tener un usuario propietario");
             }
         }
+
+        public void UpdateCode(ShortCode newCode)
+        {
+            ShortCode = newCode ?? throw new ArgumentNullException(nameof(newCode));
+        }
     }
 }

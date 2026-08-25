@@ -36,10 +36,10 @@ namespace Application.Links.Commands.CreateLink
             }
 
 
-            var newLink = new Link(shortCode, command.TargetUrl, command.CustomAlias != null, command.UserId);
+            var newLink = new Link(shortCode!, command.TargetUrl, command.CustomAlias != null, command.UserId);
 
 
-            await linkRepository.AddAsync(newLink);
+            await linkRepository.AddAsync(newLink, cancellationToken);
 
             
             return shortCode.Value;

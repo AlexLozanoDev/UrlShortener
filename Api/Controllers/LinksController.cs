@@ -1,5 +1,6 @@
 ﻿using Api.DTOs;
 using Application.Links.Commands.CreateLink;
+using Application.Links.Queries.GetLinkByShortCode;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,5 +24,24 @@ namespace Api.Controllers
             return StatusCode(StatusCodes.Status201Created, result);
 
         }
+
+        [HttpGet("/{code}")]
+        public async Task<IActionResult> RedirectToTarget(string code, IMediator mediator, CancellationToken cancellationToken)
+        {
+
+            string? userAgent = Request.Headers["User-Agent"].ToString();
+            string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+
+            var query = new GetLinkByShortCodeQuery(code, ipAddress, userAgent);
+            var tagetUrl = await mediator.Send(query, cancellationToken);
+
+            if (string.IsNullOrEmpty(tagetUrl))
+            {
+                return NotFound();
+            }
+
+            return Redirect(tagetUrl);
+        }
+
     }
 }

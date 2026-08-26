@@ -1,8 +1,9 @@
-﻿using MediatR;
+﻿using Domain.ValueObjects;
+using MediatR;
 
 namespace Application.Links.Events
 {
     public record LinkVisitedEvent(
-        long LinkId, DateTime VisitedAt, string? IpAddress, string? UserAgent
+        ShortCode ShortCode, DateTime VisitedAt, string? IpAddress, string? UserAgent
         ) : INotification;
 }

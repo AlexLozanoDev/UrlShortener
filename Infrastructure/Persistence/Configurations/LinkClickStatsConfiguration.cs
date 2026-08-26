@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -11,6 +12,13 @@ namespace Infrastructure.Persistence.Configurations
             builder.ToTable("LinkClickStats");
 
             builder.HasKey(x => x.Id);
+
+            builder.Property(x => x.ShortCode)
+                .HasConversion(
+                    shortCode => shortCode.Value,
+                    value => new ShortCode(value)
+                )
+                .IsRequired();
 
             builder.Property(x => x.IpAddress)
                 .HasMaxLength(45);

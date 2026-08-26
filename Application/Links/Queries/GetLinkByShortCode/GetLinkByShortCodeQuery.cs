@@ -1,7 +1,5 @@
-﻿using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Domain.ValueObjects;
+using MediatR;
 
 namespace Application.Links.Queries.GetLinkByShortCode
 {

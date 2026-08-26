@@ -75,8 +75,9 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(45)
                         .HasColumnType("character varying(45)");
 
-                    b.Property<long>("LinkId")
-                        .HasColumnType("bigint");
+                    b.Property<string>("ShortCode")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("UserAgent")
                         .HasMaxLength(500)

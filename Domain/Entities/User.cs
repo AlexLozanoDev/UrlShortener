@@ -11,11 +11,11 @@ namespace Domain.Entities
         public string PasswordHash { get; private set; }
         public DateTime CreatedDate { get; private set; }
 
-        public User (string email, string password)
+        public User (string email, string passwordHash)
         {
-            Validate(email, password);
+            Validate(email, passwordHash);
             Email = email.ToLowerInvariant();
-            PasswordHash = password;
+            PasswordHash = passwordHash;
             CreatedDate = DateTime.UtcNow;
         }
 

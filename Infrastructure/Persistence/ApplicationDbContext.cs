@@ -11,6 +11,8 @@ namespace Infrastructure.Persistence
     {
         public DbSet<Link> Links => Set<Link>();
         public DbSet<LinkClickStats> LinkClickStats => Set<LinkClickStats>();
+        public DbSet<User> Users => Set<User>();
+        public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -26,6 +26,11 @@ namespace Infrastructure.Persistence.Configurations
             builder.Property(l => l.TargetUrl)
                 .IsRequired()
                 .HasMaxLength(2048);
+
+            builder.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(x => x.OwnerId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

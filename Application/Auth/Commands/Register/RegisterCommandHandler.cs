@@ -24,7 +24,7 @@ namespace Application.Auth.Commands.Register
 
             var user = new User(request.email, passwordHashed);
 
-            userRepository.AddAsync(user, cancellationToken);
+            await userRepository.AddAsync(user, cancellationToken);
 
             return user.Id;
         }

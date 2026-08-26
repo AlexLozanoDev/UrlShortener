@@ -1,7 +1,9 @@
 ﻿using Application.Common.Interfaces;
+using Infrastructure.Authentication;
 using Infrastructure.Cache;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repositories;
+using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +24,10 @@ namespace Infrastructure
             var redisUser = configuration["RedisSettings:User"];
             var redisPassword = configuration["RedisSettings:Password"];
 
+            services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+
+            services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
+
             services.AddDbContext<ApplicationDbContext>(options => 
                 options.UseNpgsql(connectionString));
 
@@ -29,7 +35,7 @@ namespace Infrastructure
             {
                 var configOptions = new ConfigurationOptions
                 {
-                    EndPoints = { redisHost },
+                    EndPoints = { redisHost! },
                     User = redisUser,
                     Password = redisPassword,
                     Ssl = true,
@@ -43,6 +49,8 @@ namespace Infrastructure
             services.AddScoped<ICacheService, RedisCacheService>();
             services.AddScoped<ILinkRepository, LinkRepository>();
             services.AddScoped<IStatsRepository, StatsRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddSingleton<IPasswordHasher, PasswordHasherService>();
 
             return services;
 

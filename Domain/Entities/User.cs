@@ -10,6 +10,13 @@ namespace Domain.Entities
         public string Email { get; private set; }
         public string PasswordHash { get; private set; }
         public DateTime CreatedDate { get; private set; }
+        private readonly List<RefreshToken> _refreshTokens = new();
+        public IReadOnlyCollection<RefreshToken> RefreshTokens => _refreshTokens.AsReadOnly();
+
+        public void AddRefreshToken(string token)
+        {
+            _refreshTokens.Add(new RefreshToken(Id, token));
+        }
 
         public User (string email, string passwordHash)
         {

@@ -39,6 +39,11 @@ namespace Domain.Entities
             }
         }
 
+        public void Revoke()
+        {
+            IsRevoked = true;
+        }
+
         public bool IsActive => !IsRevoked && DateTime.UtcNow < ExpiresAt;
 
     }

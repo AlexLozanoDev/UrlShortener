@@ -1,4 +1,5 @@
 ﻿using Application.Auth.Commands.Login;
+using Application.Auth.Commands.RefreshToken;
 using Application.Auth.Commands.Register;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +26,13 @@ namespace Api.Controllers
         {
             var tokens = await _mediator.Send(command, cancellationToken);
             return Ok(tokens);
+        }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommand command, CancellationToken cancellationToken)
+        {
+            var response = await _mediator.Send(command, cancellationToken);
+            return Ok(response);
         }
 
     }

@@ -12,7 +12,7 @@ namespace Application.Auth.Commands.Register
         public async Task<Guid> Handle(RegisterCommand request, CancellationToken cancellationToken)
         {
 
-            var userRecupered = await userRepository.GetUserAsync(request.email, cancellationToken);
+            var userRecupered = await userRepository.GetUserByEmailAsync(request.email, cancellationToken);
 
             if (userRecupered != null)
             {

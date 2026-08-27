@@ -19,6 +19,16 @@ namespace Infrastructure.Persistence
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<RefreshToken>(builder =>
+            {
+                builder.HasKey(t => t.Id);
+                builder.Property(t => t.Token).IsRequired();
+
+                builder.HasOne<User>()
+                   .WithMany(u => u.RefreshTokens)
+                   .HasForeignKey(t => t.UserId);
+            });
         }
 
     }

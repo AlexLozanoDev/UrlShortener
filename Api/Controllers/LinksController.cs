@@ -3,6 +3,7 @@ using Application.Links.Commands.CreateLink;
 using Application.Links.Queries.GetLinkByShortCode;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Api.Controllers
 {
@@ -16,8 +17,18 @@ namespace Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateLink([FromBody] CreateLinkRequest request, CancellationToken cancellationToken)
         {
+            Guid? userId = null;
 
-            var command = new CreateLinkCommand(request.TargetURL, request.Alias, request.UserId);
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var claimValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (Guid.TryParse(claimValue, out var parsedId))
+                {
+                    userId = parsedId;
+                }
+            }
+
+            var command = new CreateLinkCommand(request.TargetURL, request.Alias, userId);
 
             var result = await _mediator.Send(command, cancellationToken);
 

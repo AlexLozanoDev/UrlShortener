@@ -34,11 +34,11 @@ jobs:
         ConnectionStrings__DefaultConnection: ${{ secrets.DB_CONNECTION }}
       run: |
         dotnet tool install --global dotnet-ef
-        dotnet ef database update --project src/UrlShortener.Infrastructure --startup-project src/UrlShortener.Api
+        dotnet ef database update --project Infrastructure --startup-project Api
 
     # Compilacion y publicacion hacia AWS Lambda
     - name: Compilar y publicar API
-      run: dotnet publish ./src/UrlShortener.Api -c Release -r linux-x64 --self-contained false -o ./publish
+      run: dotnet publish Api -c Release -r linux-x64 --self-contained false -o ./publish
 
     # Empaquetado
     - name: Comprimir directorio de publicacion

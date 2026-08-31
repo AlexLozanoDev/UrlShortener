@@ -1,0 +1,54 @@
+name: Build, Migracion y Despliegue a AWS Lambda
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  deploy:
+    name: CI/CD Pipeline
+    runs-on: ubuntu-latest # Entorno de ejecucion
+
+    steps: #Obtencion de codigo fuente
+    - name: Checkout del repositorio
+      uses: actions/checkout@v4
+
+    - name: Configurar SDK de .NET 10.0 #Configuracion del entorno de .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        cache: true
+        cache-dependency-path: '**/*.csproj'
+
+    # Autenticacion en AWS
+    - name: Autenticar credenciales en AWS
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    # Migracion de BD
+    - name: Instalar EF Core CLI y aplicar migraciones pendientes
+      env:
+        ConnectionStrings__DefaultConnection: ${{ secrets.DB_CONNECTION }}
+      run: |
+        dotnet tool install --global dotnet-ef
+        dotnet ef database update --project src/UrlShortener.Infrastructure --startup-project src/UrlShortener.Api
+
+    # Compilacion y publicacion hacia AWS Lambda
+    - name: Compilar y publicar API
+      run: dotnet publish ./src/UrlShortener.Api -c Release -r linux-x64 --self-contained false -o ./publish
+
+    # Empaquetado
+    - name: Comprimir directorio de publicacion
+      run: |
+        cd publish
+        zip -r ../deploy.zip .
+
+    # Actualizacion del codigo fuente en AWS Lambda
+    - name: Actualizar binarios en AWS Lambda
+      run: |
+        aws lambda update-function-code \
+          --function-name url-shortener-api \
+          --zip-file fileb://deploy.zip

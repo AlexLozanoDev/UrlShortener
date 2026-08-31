@@ -34,6 +34,7 @@ jobs:
         ConnectionStrings__DefaultConnection: ${{ secrets.DB_CONNECTION }}
       run: |
         dotnet tool install --global dotnet-ef
+        dotnet restore
         dotnet ef database update --project Infrastructure --startup-project Api
 
     # Compilacion y publicacion hacia AWS Lambda

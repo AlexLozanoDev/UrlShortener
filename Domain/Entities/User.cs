@@ -1,4 +1,4 @@
-﻿using Domain.Exceptions;
+﻿using Domain.Common.Exceptions;
 using System.Net.Mail;
 
 namespace Domain.Entities
@@ -30,15 +30,15 @@ namespace Domain.Entities
         {
             if (string.IsNullOrWhiteSpace(email))
             {
-                throw new DomainException("El email no debe estar vacio");
+                throw new DomainValidationException("El email no debe estar vacio");
             }
             if (string.IsNullOrWhiteSpace(password))
             {
-                throw new DomainException("La contraseña debe ser obligatoria");
+                throw new DomainValidationException("La contraseña debe ser obligatoria");
             }
             if (!MailAddress.TryCreate(email, out _))
             {
-                throw new DomainException("El correo electronico no tiene el formato valido");
+                throw new DomainValidationException("El correo electronico no tiene el formato valido");
             }
         }
 

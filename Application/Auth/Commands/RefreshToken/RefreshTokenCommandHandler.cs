@@ -1,4 +1,6 @@
 ﻿using Application.Auth.Commands.Login;
+using Application.Common.Errors;
+using Application.Common.Exceptions;
 using Application.Common.Interfaces;
 using MediatR;
 
@@ -17,7 +19,7 @@ namespace Application.Auth.Commands.RefreshToken
 
             if (existingToken is null || !existingToken.IsActive)
             {
-                throw new UnauthorizedAccessException("El token es inválido o ha caducado.");
+                throw new AuthenticationFailedException("El token es inválido o ha caducado.", AppErrorCodes.InvalidRefreshToken);
             }
 
             existingToken.Revoke();

@@ -1,4 +1,7 @@
-﻿using Application.Auth.Commands.Login;
+﻿using Api.Common.Responses;
+using Api.DTOs;
+using Api.Extensions;
+using Application.Auth.Commands.Login;
 using Application.Auth.Commands.RefreshToken;
 using Application.Auth.Commands.Register;
 using MediatR;
@@ -8,31 +11,44 @@ namespace Api.Controllers
 {
 
     [ApiController]
-    [Route("api/auth")]
+    [Route("api/v1/auth")]
     public class AuthController (IMediator mediator) : ControllerBase
     {
 
         private readonly IMediator _mediator = mediator;
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterCommand command, CancellationToken cancellationToken)
+        [ProducesResponseType(typeof(ApiResponse<RegisterResponse>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status409Conflict)]
+        public async Task<ActionResult<ApiResponse<RegisterResponse>>> Register(
+            [FromBody] RegisterCommand command, 
+            CancellationToken cancellationToken)
         {
             var userId = await _mediator.Send(command, cancellationToken);
-            return StatusCode(StatusCodes.Status201Created, userId);
+            return this.ApiCreated(new RegisterResponse(userId), "Usuario registrado correctamente");
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginCommand command, CancellationToken cancellationToken)
+        [ProducesResponseType(typeof(ApiResponse<AuthRespondeDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<ApiResponse<AuthRespondeDTO>>> Login(
+            [FromBody] LoginCommand command, 
+            CancellationToken cancellationToken)
         {
             var tokens = await _mediator.Send(command, cancellationToken);
-            return Ok(tokens);
+            return this.ApiOk(tokens, "Inicio de sesión exitoso");
         }
 
         [HttpPost("refresh")]
-        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommand command, CancellationToken cancellationToken)
+        [ProducesResponseType(typeof(ApiResponse<AuthRespondeDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<ApiResponse<AuthRespondeDTO>>> RefreshToken(
+            [FromBody] RefreshTokenCommand command, 
+            CancellationToken cancellationToken)
         {
             var response = await _mediator.Send(command, cancellationToken);
-            return Ok(response);
+            return this.ApiOk(response, "Token renovado correctamente");
         }
 
     }

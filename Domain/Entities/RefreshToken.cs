@@ -1,4 +1,4 @@
-﻿using Domain.Exceptions;
+﻿using Domain.Common.Exceptions;
 
 namespace Domain.Entities
 {
@@ -30,12 +30,12 @@ namespace Domain.Entities
         {
             if (userId == Guid.Empty)
             {
-                throw new DomainException("El id de usuario no puede estar vacio");
+                throw new DomainValidationException("El id de usuario no puede estar vacio");
             }
 
             if (string.IsNullOrWhiteSpace(token))
             {
-                throw new DomainException("El token debe de estar presente");
+                throw new DomainValidationException("El token debe de estar presente");
             }
         }
 

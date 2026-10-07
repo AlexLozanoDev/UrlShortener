@@ -1,6 +1,7 @@
-﻿using Application.Common.Interfaces;
+﻿using Application.Common.Errors;
+using Application.Common.Exceptions;
+using Application.Common.Interfaces;
 using Domain.Entities;
-using Domain.Exceptions;
 using MediatR;
 
 namespace Application.Auth.Commands.Register
@@ -16,7 +17,7 @@ namespace Application.Auth.Commands.Register
 
             if (userRecupered != null)
             {
-                throw new DomainException("El correo electrónico ya se encuentra en uso.");
+                throw new ConflictException("El correo electrónico ya se encuentra en uso.", AppErrorCodes.EmailAlreadyRegistered);
             }
 
             var dummyUser = new User(request.email, request.password);

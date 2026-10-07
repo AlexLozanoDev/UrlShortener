@@ -1,4 +1,6 @@
-﻿using Api.DTOs;
+﻿using Api.Common.Responses;
+using Api.DTOs;
+using Api.Extensions;
 using Application.Links.Commands.CreateLink;
 using Application.Links.Queries.GetLinkByShortCode;
 using MediatR;
@@ -8,14 +10,20 @@ using System.Security.Claims;
 namespace Api.Controllers
 {
     [ApiController]
-    [Route("v1/links")]
+    [Route("api/v1/trimit")]
     public class LinksController(IMediator mediator) : ControllerBase
     {
 
         private readonly IMediator _mediator = mediator;
 
         [HttpPost]
-        public async Task<IActionResult> CreateLink([FromBody] CreateLinkRequest request, CancellationToken cancellationToken)
+        [ProducesResponseType(typeof(ApiResponse<LinkCreatedResponse>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status409Conflict)]
+        public async Task<ActionResult<ApiResponse<LinkCreatedResponse>>> CreateLink(
+            [FromBody] CreateLinkRequest request, 
+            CancellationToken cancellationToken)
         {
             Guid? userId = null;
 
@@ -32,12 +40,19 @@ namespace Api.Controllers
 
             var result = await _mediator.Send(command, cancellationToken);
 
-            return StatusCode(StatusCodes.Status201Created, result);
+            return this.ApiCreated(
+                new LinkCreatedResponse(result),
+                "Enlace creado correctamente");
 
         }
 
         [HttpGet("/{code}")]
-        public async Task<IActionResult> RedirectToTarget(string code, IMediator mediator, CancellationToken cancellationToken)
+        [ProducesResponseType(StatusCodes.Status302Found)]
+        [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> RedirectToTarget(
+            string code, 
+            IMediator mediator, 
+            CancellationToken cancellationToken)
         {
 
             string? userAgent = Request.Headers["User-Agent"].ToString();

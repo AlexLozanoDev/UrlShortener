@@ -1,5 +1,6 @@
-﻿using Application.Common.Interfaces;
-using Application.Links.Common.Exceptions;
+﻿using Application.Common.Errors;
+using Application.Common.Exceptions;
+using Application.Common.Interfaces;
 using Application.Links.Events;
 using Domain.ValueObjects;
 using MediatR;
@@ -34,7 +35,7 @@ namespace Application.Links.Queries.GetLinkByShortCode
                 
                 if (link == null)
                 {
-                    throw new NotFoundException("El enlace solicitado no existe.");
+                    throw new NotFoundException("El enlace solicitado no existe.", AppErrorCodes.LinkNotFound);
                 }
 
                 targetUrl = link.TargetUrl;
@@ -43,7 +44,14 @@ namespace Application.Links.Queries.GetLinkByShortCode
                 logger.LogInformation("Enlace {ShortCode} almacenado en Redis", query.ShortCode);
             }
 
-            await publisher.Publish(new LinkVisitedEvent(new ShortCode(query.ShortCode), DateTime.UtcNow, query.IpAddress, query.UserAgent), cancellationToken);
+            try
+            {
+                await publisher.Publish(new LinkVisitedEvent(new ShortCode(query.ShortCode), DateTime.UtcNow, query.IpAddress, query.UserAgent), cancellationToken);
+            }
+            catch (Exception)
+            {
+                logger.LogWarning("Error al publicar el evento de visita del enlace.");
+            }
 
             return targetUrl;
         }

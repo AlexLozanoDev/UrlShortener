@@ -1,7 +1,10 @@
 ﻿using Application.Common.Interfaces;
 using Domain.Entities;
 using Domain.ValueObjects;
+using Infrastructure.Common;
+using Infrastructure.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace Infrastructure.Persistence.Repositories
 {
@@ -11,7 +14,17 @@ namespace Infrastructure.Persistence.Repositories
         public async Task AddAsync(Link link, CancellationToken cancellationToken)
         {
             await dbContext.Links.AddAsync(link, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            try { await dbContext.SaveChangesAsync(cancellationToken); }
+            catch (DbUpdateException ex) when (ex.InnerException is PostgresException pg)
+            {
+                throw new PersistenceExceptions(pg.SqlState switch
+                {
+                    PostgresErrorCodes.UniqueViolation => PersistenceErrorCodes.UniqueViolation, // 23505 → 409
+                    PostgresErrorCodes.ForeignKeyViolation => PersistenceErrorCodes.ForeignKeyViolation, // 23503 → 409
+                    PostgresErrorCodes.NotNullViolation or PostgresErrorCodes.InvalidTextRepresentation => PersistenceErrorCodes.InvalidData,  // 23502/22P02 → 400
+                    _ => PersistenceErrorCodes.PersistenceFailed // → 500
+                }, "Error al persistir la operacion.", ex);
+            }
         }
 
         public async Task<Link> GetByShortCodeAsync(ShortCode shortCode, CancellationToken cancellationToken = default)
@@ -23,7 +36,18 @@ namespace Infrastructure.Persistence.Repositories
         public async Task UpdateAsync(Link link, CancellationToken cancellationToken)
         {
             dbContext.Links.Update(link);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            try { await dbContext.SaveChangesAsync(cancellationToken); }
+            catch (DbUpdateException ex) when (ex.InnerException is PostgresException pg)
+            {
+                throw new PersistenceExceptions(pg.SqlState switch
+                {
+                    PostgresErrorCodes.UniqueViolation => PersistenceErrorCodes.UniqueViolation, // 23505 → 409
+                    PostgresErrorCodes.ForeignKeyViolation => PersistenceErrorCodes.ForeignKeyViolation, // 23503 → 409
+                    PostgresErrorCodes.NotNullViolation or PostgresErrorCodes.InvalidTextRepresentation
+                                                                 => PersistenceErrorCodes.InvalidData,  // 23502/22P02 → 400
+                    _ => PersistenceErrorCodes.PersistenceFailed // → 500
+                }, "Error al persistir la operacion.", ex);
+            }
         }
     }
 }

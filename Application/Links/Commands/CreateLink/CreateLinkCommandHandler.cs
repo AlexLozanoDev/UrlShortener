@@ -1,4 +1,6 @@
-﻿using Application.Common.Interfaces;
+﻿using Application.Common.Errors;
+using Application.Common.Exceptions;
+using Application.Common.Interfaces;
 using Application.Common.Utils;
 using Domain.Entities;
 using Domain.ValueObjects;
@@ -13,7 +15,7 @@ namespace Application.Links.Commands.CreateLink
 
             if (!string.IsNullOrEmpty(command.CustomAlias) && command.UserId == null)
             {
-                throw new UnauthorizedAccessException("Se requiere autenticación para reclamar un alias personalizado.");
+                throw new AuthenticationFailedException("Se requiere autenticación para reclamar un alias personalizado.", AppErrorCodes.AuthenticationRequired);
             }
 
             ShortCode shortCode;
@@ -25,7 +27,7 @@ namespace Application.Links.Commands.CreateLink
 
                 if (existingUrl != null)
                 {
-                    throw new InvalidOperationException("ALIAS_ALREADY_TAKEN");
+                    throw new ConflictException("El alias personalizado ya está en uso.", AppErrorCodes.AliasAlreadyTaken);
                 }
 
                 var customLink = new Link(shortCode, command.TargetUrl, isCustomAlias: true, ownerId: command.UserId);

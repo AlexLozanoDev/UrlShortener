@@ -23,6 +23,7 @@ namespace Infrastructure
             var redisHost = configuration["RedisSettings:Host"];
             var redisUser = configuration["RedisSettings:User"];
             var redisPassword = configuration["RedisSettings:Password"];
+            var redisSsl = configuration.GetValue<bool>("RedisSettings:Ssl", false);
 
             services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
 
@@ -36,9 +37,9 @@ namespace Infrastructure
                 var configOptions = new ConfigurationOptions
                 {
                     EndPoints = { redisHost! },
+                    Ssl = redisSsl,
                     User = redisUser,
                     Password = redisPassword,
-                    Ssl = true,
                     AbortOnConnectFail = false,
                     ConnectTimeout = 5000
                 };

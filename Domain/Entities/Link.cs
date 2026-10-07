@@ -1,4 +1,4 @@
-﻿using Domain.Exceptions;
+﻿using Domain.Common.Exceptions;
 using Domain.ValueObjects;
 
 namespace Domain.Entities
@@ -31,15 +31,15 @@ namespace Domain.Entities
         {
             if (string.IsNullOrWhiteSpace(targetUrl))
             {
-                throw new DomainException("La url no puede ir vacia o nula");
+                throw new DomainValidationException("La url no puede ir vacia o nula");
             }
             if (!Uri.TryCreate(targetUrl, UriKind.Absolute, out _))
             {
-                throw new DomainException("La URL no tiene un formato valido");
+                throw new DomainValidationException("La URL no tiene un formato valido");
             }
             if (isCustomAlias && ownerId == null)
             {
-                throw new DomainException("Un alias personalizado debe tener un usuario propietario");
+                throw new DomainValidationException("Un alias personalizado debe tener un usuario propietario");
             }
         }
 

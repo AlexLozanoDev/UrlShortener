@@ -1,4 +1,6 @@
-﻿using Application.Common.Interfaces;
+﻿using Application.Common.Errors;
+using Application.Common.Exceptions;
+using Application.Common.Interfaces;
 using MediatR;
 
 namespace Application.Auth.Commands.Login
@@ -14,7 +16,7 @@ namespace Application.Auth.Commands.Login
 
             if (user == null || !passwordHasher.VerifyPassword(user, request.Password, user.PasswordHash))
             {
-                throw new UnauthorizedAccessException("Credenciales invalidas");
+                throw new AuthenticationFailedException("Credenciales invalidas", AppErrorCodes.InvalidCredentials);
             }
 
             var accessToken = tokenGenerator.GenerateAccessToken(user);

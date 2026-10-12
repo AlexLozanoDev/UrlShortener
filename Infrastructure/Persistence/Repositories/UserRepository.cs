@@ -32,6 +32,12 @@ namespace Infrastructure.Persistence.Repositories
                 .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
         }
 
+        public async Task<User> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await applicationDb.Users
+                .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+        }
+
         public async Task<User?> GetUserByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
         {
             return await applicationDb.Users

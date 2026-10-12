@@ -4,8 +4,13 @@ using Api.Extensions;
 using Application.Auth.Commands.Login;
 using Application.Auth.Commands.RefreshToken;
 using Application.Auth.Commands.Register;
+using Application.Auth.Queries.GetUserProfile;
+using Application.Common.Errors;
+using Application.Common.Exceptions;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Api.Controllers
 {
@@ -49,6 +54,25 @@ namespace Api.Controllers
         {
             var response = await _mediator.Send(command, cancellationToken);
             return this.ApiOk(response, "Token renovado correctamente");
+        }
+
+        [HttpGet("me")]
+        [Authorize]
+        [ProducesResponseType(typeof(ApiResponse<UserProfileResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ApiResponse<UserProfileResponse>>> GetCurrentUser(CancellationToken cancellationToken)
+        {
+            var claimValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(claimValue, out var userId))
+            {
+                throw new AuthenticationFailedException("Token de acceso invalido o corrupto", AppErrorCodes.AuthenticationRequired);
+            }
+
+            var query = new GetUserProfileQuery(userId);
+            var result = await _mediator.Send(query, cancellationToken);
+
+            return this.ApiOk(result, "Informacion de sesion obtenida correctamente");
         }
 
     }

@@ -27,6 +27,21 @@ namespace Infrastructure.Persistence.Repositories
             }
         }
 
+        public async Task<(IEnumerable<Link> Links, int TotalCount)> GetByOwnerIdPagedAsync(Guid ownerId, int page, int pageSize, CancellationToken cancellationToken = default)
+        {
+            var query = dbContext.Links.Where(l => l.OwnerId == ownerId);
+
+            int totalCount = await query.CountAsync(cancellationToken);
+
+            var links = await query
+                .OrderByDescending(l => l.CreatedDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return (links, totalCount);
+        }
+
         public async Task<Link> GetByShortCodeAsync(ShortCode shortCode, CancellationToken cancellationToken = default)
         {
             return await dbContext.Links

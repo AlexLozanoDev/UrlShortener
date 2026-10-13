@@ -1,5 +1,6 @@
 ﻿using Application.Common.Interfaces;
 using Domain.Entities;
+using Domain.ValueObjects;
 using Infrastructure.Common;
 using Infrastructure.Exceptions;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,14 @@ namespace Infrastructure.Persistence.Repositories
                     _ => PersistenceErrorCodes.PersistenceFailed // → 500
                 }, "Error al persistir la operacion.", ex);
             }
+        }
+
+        public async Task<IEnumerable<LinkClickStats>> GetByLinkIdAsync(ShortCode shortCode, CancellationToken cancelationToken = default)
+        {
+            return await context.LinkClickStats
+                .Where(s => s.ShortCode == shortCode)
+                .OrderByDescending(s => s.ClickedAt)
+                .ToListAsync(cancelationToken);
         }
     }
 }

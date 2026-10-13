@@ -39,7 +39,7 @@ namespace Application.Links.Commands.CreateLink
             else
             {
                 var temCode = new ShortCode("temp");
-                var newLink = new Link(temCode, command.TargetUrl, isCustomAlias: false, ownerId: null);
+                var newLink = new Link(temCode, command.TargetUrl, isCustomAlias: false, ownerId: command.UserId);
 
                 await linkRepository.AddAsync(newLink, cancellationToken);
 

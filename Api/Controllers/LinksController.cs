@@ -1,9 +1,14 @@
 ﻿using Api.Common.Responses;
 using Api.DTOs;
 using Api.Extensions;
+using Application.Auth.Queries.GetLinkStats;
+using Application.Auth.Queries.GetMyLinks;
+using Application.Common.Errors;
+using Application.Common.Exceptions;
 using Application.Links.Commands.CreateLink;
 using Application.Links.Queries.GetLinkByShortCode;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -67,6 +72,49 @@ namespace Api.Controllers
             }
 
             return Redirect(tagetUrl);
+        }
+
+        [HttpGet("mine")]
+        [Authorize]
+        [ProducesResponseType(typeof(ApiResponse<PagedResponse<LinkItemDTO>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<ApiResponse<PagedResponse<LinkItemDTO>>>> GetMyLinks(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20,
+            CancellationToken cancellationToken = default)
+        {
+            var claimValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(claimValue, out var userId))
+            {
+                throw new AuthenticationFailedException("Token inválido.", AppErrorCodes.AuthenticationRequired);
+            }
+
+            var query = new GetMyLinksQuery(userId, page, pageSize);
+            var result = await _mediator.Send(query, cancellationToken);
+
+            return this.ApiOk(result, "Enlaces obtenidos correctamente");
+        }
+
+        [HttpGet("{code}/stats")]
+        [Authorize]
+        [ProducesResponseType(typeof(ApiResponse<LinkStatsResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ApiResponse<LinkStatsResponse>>> GetLinkStats(
+            string code,
+            CancellationToken cancellationToken)
+        {
+            var claimValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(claimValue, out var userId))
+            {
+                throw new AuthenticationFailedException("Token inválido.", AppErrorCodes.AuthenticationRequired);
+            }
+
+            var query = new GetLinksStatsQuery(code, userId);
+            var result = await _mediator.Send(query, cancellationToken);
+
+            return this.ApiOk(result, "Estadísticas obtenidas correctamente");
         }
 
     }

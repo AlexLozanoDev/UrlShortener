@@ -10,6 +10,7 @@ namespace Application.Links.Commands.CreateLink
 {
     public class CreateLinkCommandHandler (ILinkRepository linkRepository) : IRequestHandler<CreateLinkCommand, string>
     {
+        private static readonly string[] ReservedWords = ["dashboard", "auth", "login", "register", "api", "admin", "stats"];
         public async Task<string> Handle(CreateLinkCommand command, CancellationToken cancellationToken)
         {
 
@@ -22,6 +23,13 @@ namespace Application.Links.Commands.CreateLink
 
             if (!string.IsNullOrEmpty(command.CustomAlias))
             {
+                var normalizedAlias = command.CustomAlias.ToLower().Trim();
+
+                if (ReservedWords.Contains(normalizedAlias))
+                {
+                    throw new ConflictException("El alias está reservado por el sistema.");
+                }
+
                 shortCode = new ShortCode(command.CustomAlias);
                 var existingUrl = await linkRepository.GetByShortCodeAsync(shortCode);
 

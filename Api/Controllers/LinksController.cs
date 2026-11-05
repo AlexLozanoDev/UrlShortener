@@ -71,7 +71,8 @@ namespace Api.Controllers
                 return NotFound();
             }
 
-            return Redirect(tagetUrl);
+            Response.Headers.Location = tagetUrl;
+            return StatusCode(StatusCodes.Status302Found);
         }
 
         [HttpGet("mine")]

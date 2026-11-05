@@ -71,6 +71,11 @@ namespace Api.Controllers
                 return NotFound();
             }
 
+            if (Uri.TryCreate(tagetUrl, UriKind.Absolute, out var uri))
+            {
+                tagetUrl = uri.AbsoluteUri;
+            }
+
             Response.Headers.Location = tagetUrl;
             return StatusCode(StatusCodes.Status302Found);
         }
